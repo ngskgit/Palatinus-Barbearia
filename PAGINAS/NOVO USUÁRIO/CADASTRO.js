@@ -15,7 +15,6 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 export default function NOVOUSUARIO({ navigation }) {
-  const [CPF, setCPF] = useState('');
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -24,11 +23,10 @@ export default function NOVOUSUARIO({ navigation }) {
 
   const cadastrarFirebase = async () => {
     setErrorCadastro('');
-    const cpfNormalizado = CPF.replace(/\D/g, '');
     const nomeCompleto = nome.trim();
 
-    if (!nomeCompleto || cpfNormalizado.length !== 11 || !email.trim() || !senha) {
-      setErrorCadastro('Preencha todos os campos e informe um CPF com 11 números.');
+    if (!nomeCompleto || !email.trim() || !senha) {
+      setErrorCadastro('Preencha todos os campos.');
       return;
     }
 
@@ -50,7 +48,6 @@ export default function NOVOUSUARIO({ navigation }) {
       await setDoc(doc(database, 'usuarios', user.uid), {
         idUser: user.uid,
         nomeCompleto,
-        cpf: cpfNormalizado,
         email: user.email,
         criadoEm: serverTimestamp(),
       });
@@ -87,15 +84,6 @@ export default function NOVOUSUARIO({ navigation }) {
         style={styles.conteudo}
       >
         <Text style={styles.textoTitulo}>CADASTRE-SE</Text>
-         <TextInput
-          style={styles.input}
-          placeholder="CPF:"
-          keyboardType="numeric"
-          autoCapitalize="none"
-          onChangeText={setCPF}
-          value={CPF}
-          maxLength={14}
-        />
         <TextInput
           style={styles.input}
           placeholder="NOME COMPLETO:"
@@ -132,7 +120,6 @@ export default function NOVOUSUARIO({ navigation }) {
           disabled={
             cadastrando ||
             !nome.trim() ||
-            CPF.replace(/\D/g, '').length !== 11 ||
             !email.trim() ||
             !senha
           }
@@ -140,7 +127,6 @@ export default function NOVOUSUARIO({ navigation }) {
             styles.botaoCadastro,
             (cadastrando ||
               !nome.trim() ||
-              CPF.replace(/\D/g, '').length !== 11 ||
               !email.trim() ||
               !senha) && { opacity: 0.5 },
           ]}

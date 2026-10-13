@@ -14,6 +14,8 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebaseConfig';
 import styles from './style';
 
+const EMAIL_ADMIN = 'adm123@gmail.com';
+
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -27,10 +29,17 @@ export default function Login({ navigation }) {
       return;
     }
 
-    signInWithEmailAndPassword(auth, email, senha)
+    signInWithEmailAndPassword(auth, email.trim(), senha)
       .then((userCredential) => {
         const user = userCredential.user;
         console.log('Login realizado:', user.uid);
+
+        if (user.email?.trim().toLowerCase() === EMAIL_ADMIN) {
+          navigation.replace('TelaInicialAdm', {
+            idUser: user.uid,
+          });
+          return;
+        }
 
         navigation.navigate('Tarefas', {
           idUser: user.uid,
