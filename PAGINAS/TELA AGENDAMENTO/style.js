@@ -35,20 +35,32 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  botaoBARBEIRO01: {
+  lista: {
+    width: '100%',
+    maxHeight: 300,
+  },
+  listaConteudo: {
+    alignItems: 'center',
+  },
+  botao: {
     width: 175,
     height: 65,
     backgroundColor: '#9D9D9D',
     borderRadius: 25,
     marginTop: 20,
   },
-
-  botaoBARBEIRO02: {
-    width: 175,
-    height: 65,
+  botaoBarbeiro: {
+    width: 220,
+    minHeight: 60,
     backgroundColor: '#9D9D9D',
-    borderRadius: 25,
-    marginTop: 20,
+    borderRadius: 20,
+    marginTop: 16,
+    paddingVertical: 12,
+  },
+  barbeiroSelecionado: {
+    backgroundColor: '#6F8F72',
+    borderWidth: 2,
+    borderColor: '#294D2D',
   },
 });
 

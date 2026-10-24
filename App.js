@@ -8,6 +8,8 @@ import NOVOUSUARIO from './PAGINAS/NOVO USUÁRIO/CADASTRO';
 import Tarefas from './PAGINAS/TAREFAS/Menu_Inicial';
 import TelaInicialAdm from './PAGINAS/MENU-ADM/tela_inicial_adm';
 import AdicionarBarbeiro from './PAGINAS/MENU-ADM/ADICIONAR BARBEIRO/ADICIONAR_BARBEIRO';
+import AdicionarServico from './PAGINAS/MENU-ADM/ADICIONAR SERVIÇO/ADICIONAR_SERVIÇO.js';
+import SelecionarBarbeiro from './PAGINAS/TELA AGENDAMENTO/BARBEIRO';
 
 const Stack = createStackNavigator();
 
@@ -18,7 +20,9 @@ export default function App() {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="NOVOUSUARIO" component={NOVOUSUARIO} />
         <Stack.Screen name="Tarefas" component={Tarefas} />
+        <Stack.Screen name="BARBEIROS" component={SelecionarBarbeiro} />
         <Stack.Screen name="TelaInicialAdm" component={TelaInicialAdm} />
+        <Stack.Screen name="ADICIONAR_SERVICO" component={AdicionarServico} />
         <Stack.Screen name="ADICIONAR_BARBEIRO" component={AdicionarBarbeiro} />
       </Stack.Navigator>
     </NavigationContainer>

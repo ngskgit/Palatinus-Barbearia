@@ -26,7 +26,7 @@ export default function Tarefas({ navigation, route }) {
         <View style={styles.content}>
           <TouchableOpacity
             style={[styles.button, styles.botaoVER_AGENDAMENTO]}
-            onPress={() => navigation.navigate('VER_AGENDAMENTO', { idUser })}
+            onPress={() => navigation.navigate('TELA_VER_AGENDAMENTOS', { idUser })}
           >
             <Text style={styles.buttonText}>VER AGENDAMENTO</Text>
           </TouchableOpacity>

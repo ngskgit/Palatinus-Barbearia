@@ -4,12 +4,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 
 import styles from './style';
 
-export default function Tarefas({ route }) {
+export default function Tarefas({ navigation, route }) {
   const idUser = route?.params?.idUser;
 
   return (
@@ -24,9 +25,13 @@ export default function Tarefas({ route }) {
       >
         <View style={styles.content}>
           <Text style={styles.title}>AGENDAMENTO</Text>
-          <View style={[styles.button, styles.botaoAGENDAMENTO]}>
+          <TouchableOpacity
+            style={[styles.button, styles.botaoAGENDAMENTO]}
+            onPress={() => navigation.navigate('BARBEIROS', { idUser })}
+            accessibilityRole="button"
+          >
             <Text style={styles.buttonText}>AGENDAR HORÁRIO</Text>
-          </View>
+          </TouchableOpacity>
           <View style={[styles.button, styles.botaoCANCELAMENTO]}>
             <Text style={styles.buttonText}>CANCELAR AGENDAMENTO</Text>
           </View>

@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   buttonText: {
-    color: '#fff',
+    color: '#000000',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -47,14 +47,14 @@ const styles = StyleSheet.create({
     width: 175,
     height: 65,
     backgroundColor: '#9D9D9D',
-    borderRadius: 25,
+    borderRadius: 100,
     marginTop: 20,
   },
   botaoADICIONAR_BARBEIRO: {
     width: 175,
     height: 65,
     backgroundColor: '#9D9D9D',
-    borderRadius: 25,
+    borderRadius: 100,
     marginTop: 20,
   },
 });
