@@ -27,7 +27,7 @@ export default function Tarefas({ navigation, route }) {
           <Text style={styles.title}>AGENDAMENTO</Text>
           <TouchableOpacity
             style={[styles.button, styles.botaoAGENDAMENTO]}
-            onPress={() => navigation.navigate('BARBEIROS', { idUser })}
+            onPress={() => navigation.navigate('SERVICOS', { idUser })}
             accessibilityRole="button"
           >
             <Text style={styles.buttonText}>AGENDAR HORÁRIO</Text>

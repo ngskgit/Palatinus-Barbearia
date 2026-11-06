@@ -57,6 +57,14 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingVertical: 12,
   },
+  botaoContinuar: {
+    width: 220,
+    minHeight: 60,
+    backgroundColor: '#9D9D9D',
+    borderRadius: 20,
+    marginTop: 16,
+    paddingVertical: 12,
+  },
   barbeiroSelecionado: {
     backgroundColor: '#6F8F72',
     borderWidth: 2,

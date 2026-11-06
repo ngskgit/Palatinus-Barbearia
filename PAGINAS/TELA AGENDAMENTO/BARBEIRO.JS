@@ -13,11 +13,13 @@ import { collection, onSnapshot } from 'firebase/firestore';
 import { database } from '../../firebaseConfig';
 import styles from './style';
 
-export default function Tarefas() {
+export default function SelecionarBarbeiro({ navigation, route }) {
   const [barbeiros, setBarbeiros] = useState([]);
   const [barbeiroSelecionadoId, setBarbeiroSelecionadoId] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [mensagemErro, setMensagemErro] = useState('');
+
+  const servicoSelecionadoId = route?.params?.servicoSelecionadoId;
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -87,6 +89,7 @@ export default function Tarefas() {
                     style={[
                       styles.button,
                       styles.botaoBarbeiro,
+                      styles.continuar,
                       selecionado && styles.barbeiroSelecionado,
                     ]}
                     onPress={() => setBarbeiroSelecionadoId(barbeiro.id)}
@@ -102,6 +105,20 @@ export default function Tarefas() {
               })}
             </ScrollView>
           )}
+          {!carregando && !mensagemErro && barbeiroSelecionadoId && servicoSelecionadoId ? (
+            <TouchableOpacity
+              style={[styles.button, styles.botaoBarbeiro, styles.continuar]}
+              onPress={() => navigation.navigate('HORARIO', {
+                idUser: route?.params?.idUser,
+                servicoSelecionadoId,
+                barbeiroSelecionadoId,
+              })}
+              accessibilityRole="button"
+              accessibilityLabel="Continuar para selecionar um horário"
+            >
+              <Text style={styles.buttonText}>CONTINUAR</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       </KeyboardAvoidingView>
     </ImageBackground>

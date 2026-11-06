@@ -10,6 +10,8 @@ import TelaInicialAdm from './PAGINAS/MENU-ADM/tela_inicial_adm';
 import AdicionarBarbeiro from './PAGINAS/MENU-ADM/ADICIONAR BARBEIRO/ADICIONAR_BARBEIRO';
 import AdicionarServico from './PAGINAS/MENU-ADM/ADICIONAR SERVIÇO/ADICIONAR_SERVIÇO.js';
 import SelecionarBarbeiro from './PAGINAS/TELA AGENDAMENTO/BARBEIRO';
+import SelecionarServico from './PAGINAS/TELA_SELECIONAR_SERVIÇO/SERVIÇO';
+import SelecionarHorario from './PAGINAS/SELECIONAR_HORARIO/HORARIO';
 
 const Stack = createStackNavigator();
 
@@ -20,7 +22,9 @@ export default function App() {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="NOVOUSUARIO" component={NOVOUSUARIO} />
         <Stack.Screen name="Tarefas" component={Tarefas} />
+        <Stack.Screen name="SERVICOS" component={SelecionarServico} />
         <Stack.Screen name="BARBEIROS" component={SelecionarBarbeiro} />
+        <Stack.Screen name="HORARIO" component={SelecionarHorario} />
         <Stack.Screen name="TelaInicialAdm" component={TelaInicialAdm} />
         <Stack.Screen name="ADICIONAR_SERVICO" component={AdicionarServico} />
         <Stack.Screen name="ADICIONAR_BARBEIRO" component={AdicionarBarbeiro} />

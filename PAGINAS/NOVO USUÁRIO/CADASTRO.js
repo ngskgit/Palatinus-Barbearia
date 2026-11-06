@@ -11,7 +11,7 @@ import {
 import { auth, database } from '../../firebaseConfig';
 import styles from './style';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 export default function NOVOUSUARIO({ navigation }) {
@@ -45,9 +45,12 @@ export default function NOVOUSUARIO({ navigation }) {
         user = userCredential.user;
       }
 
+      await updateProfile(user, { displayName: nomeCompleto });
+
       await setDoc(doc(database, 'usuarios', user.uid), {
         idUser: user.uid,
         nomeCompleto,
+        displayName: nomeCompleto,
         email: user.email,
         criadoEm: serverTimestamp(),
       });
