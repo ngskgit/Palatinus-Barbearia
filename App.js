@@ -7,6 +7,7 @@ import Login from './PAGINAS/LOGIN/TELA_LOGIN';
 import NOVOUSUARIO from './PAGINAS/NOVO USUÁRIO/CADASTRO';
 import Tarefas from './PAGINAS/TAREFAS/Menu_Inicial';
 import TelaInicialAdm from './PAGINAS/MENU-ADM/tela_inicial_adm';
+import TelaVerAgendamentos from './PAGINAS/MENU-ADM/VER AGENDAMENTOS/tela_ver_agendamentos';
 import AdicionarBarbeiro from './PAGINAS/MENU-ADM/ADICIONAR BARBEIRO/ADICIONAR_BARBEIRO';
 import AdicionarServico from './PAGINAS/MENU-ADM/ADICIONAR SERVIÇO/ADICIONAR_SERVIÇO.js';
 import SelecionarBarbeiro from './PAGINAS/TELA AGENDAMENTO/BARBEIRO';
@@ -26,6 +27,7 @@ export default function App() {
         <Stack.Screen name="BARBEIROS" component={SelecionarBarbeiro} />
         <Stack.Screen name="HORARIO" component={SelecionarHorario} />
         <Stack.Screen name="TelaInicialAdm" component={TelaInicialAdm} />
+        <Stack.Screen name="TELA_VER_AGENDAMENTOS" component={TelaVerAgendamentos} />
         <Stack.Screen name="ADICIONAR_SERVICO" component={AdicionarServico} />
         <Stack.Screen name="ADICIONAR_BARBEIRO" component={AdicionarBarbeiro} />
       </Stack.Navigator>

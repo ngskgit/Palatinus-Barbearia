@@ -43,6 +43,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 
+  botaoAGENDAR: {
+    width: 175,
+    height: 65,
+    backgroundColor: '#9D9D9D',
+    borderRadius: 25,
+    marginTop: 20,
+  },
+
   botaoADICIONAR_SERVICO: {
     width: 175,
     height: 65,

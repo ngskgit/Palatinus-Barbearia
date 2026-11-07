@@ -29,6 +29,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 12,
   },
+  avisoAgenda: {
+    maxWidth: 360,
+    marginBottom: 12,
+    color: '#9B2C2C',
+    fontSize: 15,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
   calendario: {
     width: '100%',
     maxWidth: 360,
@@ -101,6 +109,20 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
   },
+  campoCliente: {
+    width: '100%',
+    maxWidth: 360,
+    marginTop: 16,
+  },
+  inputCliente: {
+    minHeight: 48,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#777777',
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    fontSize: 16,
+  },
   botaoHorario: {
     width: '30%',
     minHeight: 44,
@@ -112,6 +134,9 @@ const styles = StyleSheet.create({
   },
   horarioSelecionado: {
     backgroundColor: '#294D2D',
+  },
+  botaoDesabilitado: {
+    opacity: 0.5,
   },
   textoHorario: {
     color: '#000000',

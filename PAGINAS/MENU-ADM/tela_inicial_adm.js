@@ -30,6 +30,17 @@ export default function Tarefas({ navigation, route }) {
           >
             <Text style={styles.buttonText}>VER AGENDAMENTO</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.botaoAGENDAR]}
+            onPress={() => navigation.navigate('SERVICOS', {
+              idUser,
+              returnRoute: 'TelaInicialAdm',
+            })}
+          >
+            <Text style={styles.buttonText}>AGENDAR</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={[styles.button, styles.botaoADICIONAR_SERVICO]}
             onPress={() => navigation.navigate('ADICIONAR_SERVICO', { idUser })}

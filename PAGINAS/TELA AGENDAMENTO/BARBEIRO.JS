@@ -112,6 +112,11 @@ export default function SelecionarBarbeiro({ navigation, route }) {
                 idUser: route?.params?.idUser,
                 servicoSelecionadoId,
                 barbeiroSelecionadoId,
+                barbeiroNome: barbeiros.find(
+                  (barbeiro) => barbeiro.id === barbeiroSelecionadoId,
+                )?.nome,
+                servicoNome: route?.params?.servicoNome,
+                returnRoute: route?.params?.returnRoute,
               })}
               accessibilityRole="button"
               accessibilityLabel="Continuar para selecionar um horário"

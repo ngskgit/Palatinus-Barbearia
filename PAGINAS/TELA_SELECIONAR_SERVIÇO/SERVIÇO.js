@@ -108,6 +108,10 @@ export default function SelecionarServico({ navigation, route }) {
               onPress={() => navigation.navigate('BARBEIROS', {
                 idUser: route?.params?.idUser,
                 servicoSelecionadoId,
+                servicoNome: servicos.find(
+                  (servico) => servico.id === servicoSelecionadoId,
+                )?.nome,
+                returnRoute: route?.params?.returnRoute,
               })}
               accessibilityRole="button"
               accessibilityLabel="Continuar para selecionar um barbeiro"
