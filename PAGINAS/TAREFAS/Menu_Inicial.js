@@ -32,9 +32,13 @@ export default function Tarefas({ navigation, route }) {
           >
             <Text style={styles.buttonText}>AGENDAR HORÁRIO</Text>
           </TouchableOpacity>
-          <View style={[styles.button, styles.botaoCANCELAMENTO]}>
+          <TouchableOpacity
+            style={[styles.button, styles.botaoCANCELAMENTO]}
+            onPress={() => navigation.navigate('CANCELAR', { idUser })}
+            accessibilityRole="button"
+          >
             <Text style={styles.buttonText}>CANCELAR AGENDAMENTO</Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </ImageBackground>

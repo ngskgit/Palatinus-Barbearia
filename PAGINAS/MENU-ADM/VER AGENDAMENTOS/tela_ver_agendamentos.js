@@ -12,6 +12,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   onSnapshot,
   query,
   serverTimestamp,
@@ -55,6 +56,7 @@ export default function TelaVerAgendamentos({ route }) {
   const [carregandoSuspensao, setCarregandoSuspensao] = useState(true);
   const [erroSuspensao, setErroSuspensao] = useState(false);
   const [alterandoSuspensao, setAlterandoSuspensao] = useState(false);
+  const [excluindoAgendamentoId, setExcluindoAgendamentoId] = useState(null);
   const [mensagem, setMensagem] = useState('');
   const [mensagemErro, setMensagemErro] = useState('');
 
@@ -83,14 +85,41 @@ export default function TelaVerAgendamentos({ route }) {
     );
     const cancelarAgendamentos = onSnapshot(
       consultaAgendamentos,
-      (snapshot) => {
-        setAgendamentos(snapshot.docs
-          .map((agendamentoDoc) => ({
-            id: agendamentoDoc.id,
-            ...agendamentoDoc.data(),
-          }))
-          .sort((a, b) => String(a.horario).localeCompare(String(b.horario))));
-        setCarregandoAgendamentos(false);
+      async (snapshot) => {
+        try {
+          const listaAgendamentos = await Promise.all(snapshot.docs.map(async (agendamentoDoc) => {
+            const agendamento = {
+              id: agendamentoDoc.id,
+              ...agendamentoDoc.data(),
+            };
+            const cliente = agendamento.idUsuario
+              ? await getDoc(doc(database, 'usuarios', agendamento.idUsuario))
+              : null;
+            const perfil = cliente?.data();
+            const nomeSalvo = typeof agendamento.nomeCliente === 'string'
+              ? agendamento.nomeCliente.trim()
+              : '';
+            const nomeSalvoEhEmail = nomeSalvo.includes('@');
+
+            return {
+              ...agendamento,
+              nomeCliente: nomeSalvoEhEmail
+                ? perfil?.nomeCompleto?.trim() || perfil?.displayName?.trim() || nomeSalvo
+                : nomeSalvo || perfil?.nomeCompleto?.trim() || perfil?.displayName?.trim(),
+            };
+          }));
+          setAgendamentos(listaAgendamentos
+            .sort((a, b) => String(a.horario).localeCompare(String(b.horario))));
+        } catch (error) {
+          console.error('Erro ao carregar nomes dos clientes:', error);
+          setMensagemErro(
+            error.code === 'permission-denied'
+              ? 'Sem permissão para consultar os perfis dos clientes. Verifique as regras da coleção usuarios.'
+              : 'Não foi possível carregar os nomes dos clientes.',
+          );
+        } finally {
+          setCarregandoAgendamentos(false);
+        }
       },
       (error) => {
         console.error('Erro ao carregar agendamentos da data:', error);
@@ -143,6 +172,25 @@ export default function TelaVerAgendamentos({ route }) {
       dia,
     );
     setDataSelecionada(novaData);
+  }
+
+  async function excluirAgendamento(agendamento) {
+    setExcluindoAgendamentoId(agendamento.id);
+    setMensagem('');
+    setMensagemErro('');
+    try {
+      await deleteDoc(doc(database, 'agendamentos', agendamento.id));
+      setMensagem('Agendamento cancelado. O horário está disponível novamente.');
+    } catch (error) {
+      console.error('Erro ao cancelar agendamento:', error);
+      setMensagemErro(
+        error.code === 'permission-denied'
+          ? 'Sem permissão para cancelar agendamentos. Verifique as regras de exclusão do Firestore.'
+          : 'Não foi possível cancelar o agendamento. Verifique sua conexão e tente novamente.',
+      );
+    } finally {
+      setExcluindoAgendamentoId(null);
+    }
   }
 
   async function alternarSuspensao() {
@@ -338,7 +386,7 @@ export default function TelaVerAgendamentos({ route }) {
             ) : agendamentos.map((agendamento) => (
               <View key={agendamento.id} style={styles.itemAgendamento}>
                 <Text style={styles.horarioAgendamento}>
-                  {agendamento.horario || 'Horário não informado'}
+                  {String(agendamento.horario || 'Horário não informado').replace('-', ':')}
                 </Text>
                 <Text style={styles.detalheAgendamento}>
                   Cliente: {agendamento.nomeCliente || 'Não informado'}
@@ -349,6 +397,24 @@ export default function TelaVerAgendamentos({ route }) {
                 <Text style={styles.detalheAgendamento}>
                   Barbeiro: {agendamento.nomeBarbeiro || 'Não informado'}
                 </Text>
+                <TouchableOpacity
+                  style={[
+                    styles.botaoExcluirAgendamento,
+                    excluindoAgendamentoId === agendamento.id
+                      && styles.botaoExcluirAgendamentoDesabilitado,
+                  ]}
+                  onPress={() => excluirAgendamento(agendamento)}
+                  disabled={excluindoAgendamentoId !== null}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Cancelar agendamento de ${agendamento.nomeCliente || 'cliente'} às ${String(agendamento.horario || '').replace('-', ':')}`}
+                  accessibilityState={{ disabled: excluindoAgendamentoId !== null }}
+                >
+                  <Text style={styles.textoBotaoExcluirAgendamento}>
+                    {excluindoAgendamentoId === agendamento.id
+                      ? 'CANCELANDO...'
+                      : 'CANCELAR AGENDAMENTO'}
+                  </Text>
+                </TouchableOpacity>
               </View>
             ))}
           </View>

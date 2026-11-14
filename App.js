@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Login from './PAGINAS/LOGIN/TELA_LOGIN';
 import NOVOUSUARIO from './PAGINAS/NOVO USUÁRIO/CADASTRO';
 import Tarefas from './PAGINAS/TAREFAS/Menu_Inicial';
+import CancelarAgendamento from './PAGINAS/CANCELAR_HORARIO/CANCELAR';
 import TelaInicialAdm from './PAGINAS/MENU-ADM/tela_inicial_adm';
 import TelaVerAgendamentos from './PAGINAS/MENU-ADM/VER AGENDAMENTOS/tela_ver_agendamentos';
 import AdicionarBarbeiro from './PAGINAS/MENU-ADM/ADICIONAR BARBEIRO/ADICIONAR_BARBEIRO';
@@ -23,6 +24,7 @@ export default function App() {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="NOVOUSUARIO" component={NOVOUSUARIO} />
         <Stack.Screen name="Tarefas" component={Tarefas} />
+        <Stack.Screen name="CANCELAR" component={CancelarAgendamento} />
         <Stack.Screen name="SERVICOS" component={SelecionarServico} />
         <Stack.Screen name="BARBEIROS" component={SelecionarBarbeiro} />
         <Stack.Screen name="HORARIO" component={SelecionarHorario} />

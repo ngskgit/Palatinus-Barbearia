@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   ImageBackground,
   KeyboardAvoidingView,
@@ -9,15 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {
-  collection,
-  doc,
-  onSnapshot,
-  query,
-  runTransaction,
-  serverTimestamp,
-  where,
-} from 'firebase/firestore';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { auth, database } from '../../firebaseConfig';
 import styles from './style';
 
@@ -76,22 +68,10 @@ export default function SelecionarHorario({ navigation, route }) {
   );
   const [horarioSelecionado, setHorarioSelecionado] = useState(null);
   const [nomeCliente, setNomeCliente] = useState('');
-  const [agendamentos, setAgendamentos] = useState([]);
-  const [agendaSuspensa, setAgendaSuspensa] = useState(false);
-  const [dataAgendamentosCarregada, setDataAgendamentosCarregada] = useState(null);
-  const [dataSuspensaoCarregada, setDataSuspensaoCarregada] = useState(null);
   const [mensagemErro, setMensagemErro] = useState('');
   const [salvando, setSalvando] = useState(false);
   const chaveData = criarChaveData(dataSelecionada);
-  const dadosCarregados = (
-    dataAgendamentosCarregada === chaveData
-    && dataSuspensaoCarregada === chaveData
-  );
   const barbeiroId = route?.params?.barbeiroSelecionadoId;
-  const horarioOcupado = agendamentos.some((agendamento) => (
-    agendamento.idBarbeiro === barbeiroId
-    && agendamento.horario === horarioSelecionado
-  ));
 
   const primeiroDiaDoMes = mesExibido.getDay();
   const quantidadeDeDias = new Date(
@@ -110,57 +90,6 @@ export default function SelecionarHorario({ navigation, route }) {
       && mesExibido.getMonth() > hoje.getMonth()
     )
   );
-
-  useEffect(() => {
-    setDataAgendamentosCarregada(null);
-    setDataSuspensaoCarregada(null);
-    setMensagemErro('');
-
-    const consultaAgendamentos = query(
-      collection(database, 'agendamentos'),
-      where('data', '==', chaveData),
-    );
-    const cancelarAgendamentos = onSnapshot(
-      consultaAgendamentos,
-      (snapshot) => {
-        setAgendamentos(snapshot.docs.map((agendamentoDoc) => ({
-          id: agendamentoDoc.id,
-          ...agendamentoDoc.data(),
-        })));
-        setDataAgendamentosCarregada(chaveData);
-      },
-      (error) => {
-        console.error('Erro ao carregar horários agendados:', error);
-        setMensagemErro(
-          error.code === 'permission-denied'
-            ? 'Sem permissão para consultar os horários agendados.'
-            : 'Não foi possível consultar os horários. Verifique sua conexão e tente novamente.',
-        );
-        setDataAgendamentosCarregada(chaveData);
-      },
-    );
-    const cancelarSuspensao = onSnapshot(
-      doc(database, 'agendasSuspensas', chaveData),
-      (snapshot) => {
-        setAgendaSuspensa(snapshot.exists());
-        setDataSuspensaoCarregada(chaveData);
-      },
-      (error) => {
-        console.error('Erro ao consultar a suspensão da agenda:', error);
-        setMensagemErro(
-          error.code === 'permission-denied'
-            ? 'Sem permissão para consultar a disponibilidade da agenda.'
-            : 'Não foi possível consultar a disponibilidade. Verifique sua conexão e tente novamente.',
-        );
-        setDataSuspensaoCarregada(chaveData);
-      },
-    );
-
-    return () => {
-      cancelarAgendamentos();
-      cancelarSuspensao();
-    };
-  }, [chaveData]);
 
   function alterarMes(deslocamento) {
     setMesExibido((mesAtual) => criarDataLocal(
@@ -183,14 +112,14 @@ export default function SelecionarHorario({ navigation, route }) {
     setDataSelecionada(novaData);
     setHorarioSelecionado(null);
     setNomeCliente('');
+    setMensagemErro('');
   }
 
   async function confirmarAgendamento() {
     const nomeClienteNormalizado = fluxoAdministrador
       ? nomeCliente.trim()
-      : auth.currentUser?.displayName?.trim()
-        || auth.currentUser?.email
-        || 'Cliente';
+      : route?.params?.nomeCliente?.trim()
+        || auth.currentUser?.displayName?.trim();
 
     if (!horarioSelecionado || !barbeiroId || !route?.params?.servicoSelecionadoId) {
       setMensagemErro('Selecione um serviço, barbeiro e horário antes de continuar.');
@@ -200,46 +129,31 @@ export default function SelecionarHorario({ navigation, route }) {
       setMensagemErro('Digite o nome do cliente.');
       return;
     }
-    if (agendaSuspensa || horarioOcupado || !dadosCarregados) {
-      setMensagemErro(
-        agendaSuspensa
-          ? 'A agenda está suspensa nesta data.'
-          : 'Este horário não está disponível. Selecione outro.',
-      );
+    if (!nomeClienteNormalizado) {
+      setMensagemErro('Não encontramos seu nome. Saia e entre novamente antes de agendar.');
       return;
     }
-
+    if (!auth.currentUser) {
+      setMensagemErro('Faça login antes de confirmar o agendamento.');
+      return;
+    }
     setSalvando(true);
     setMensagemErro('');
-    const idAgendamento = encodeURIComponent(
-      `${chaveData}_${barbeiroId}_${horarioSelecionado.replace(':', '-')}`,
-    );
-    const referenciaAgenda = doc(database, 'agendasSuspensas', chaveData);
+    const horarioChave = horarioSelecionado.replace(':', '-');
+    const idAgendamento = `${chaveData}_${barbeiroId}_${horarioChave}`;
     const referenciaAgendamento = doc(database, 'agendamentos', idAgendamento);
 
     try {
-      await runTransaction(database, async (transacao) => {
-        const suspensao = await transacao.get(referenciaAgenda);
-        if (suspensao.exists()) {
-          throw new Error('AGENDA_SUSPENSA');
-        }
-
-        const agendamentoExistente = await transacao.get(referenciaAgendamento);
-        if (agendamentoExistente.exists()) {
-          throw new Error('HORARIO_OCUPADO');
-        }
-
-        transacao.set(referenciaAgendamento, {
-          data: chaveData,
-          horario: horarioSelecionado,
-          nomeCliente: nomeClienteNormalizado,
-          idUsuario: route?.params?.idUser || auth.currentUser?.uid || null,
-          idBarbeiro: barbeiroId,
-          nomeBarbeiro: route?.params?.barbeiroNome || '',
-          idServico: route.params.servicoSelecionadoId,
-          nomeServico: route?.params?.servicoNome || '',
-          criadoEm: serverTimestamp(),
-        });
+      await setDoc(referenciaAgendamento, {
+        data: chaveData,
+        horario: horarioChave,
+        nomeCliente: nomeClienteNormalizado,
+        idUsuario: auth.currentUser.uid,
+        idBarbeiro: barbeiroId,
+        nomeBarbeiro: route?.params?.barbeiroNome || '',
+        idServico: route.params.servicoSelecionadoId,
+        nomeServico: route?.params?.servicoNome || '',
+        criadoEm: serverTimestamp(),
       });
 
       navigation.navigate(telaRetorno, {
@@ -247,18 +161,11 @@ export default function SelecionarHorario({ navigation, route }) {
       });
     } catch (error) {
       console.error('Erro ao confirmar agendamento:', error);
-      if (error.message === 'AGENDA_SUSPENSA') {
-        setAgendaSuspensa(true);
-        setMensagemErro('A agenda está suspensa nesta data. Não é possível agendar.');
-      } else if (error.message === 'HORARIO_OCUPADO') {
-        setMensagemErro('Este horário acabou de ser reservado. Selecione outro.');
-      } else {
-        setMensagemErro(
-          error.code === 'permission-denied'
-            ? 'Sem permissão para salvar o agendamento. Verifique as regras do Firestore.'
-            : 'Não foi possível salvar o agendamento. Verifique sua conexão e tente novamente.',
-        );
-      }
+      setMensagemErro(
+        error.code === 'permission-denied'
+          ? 'Não foi possível reservar. Este horário pode já estar ocupado.'
+          : 'Não foi possível salvar o agendamento. Verifique sua conexão e tente novamente.',
+      );
     } finally {
       setSalvando(false);
     }
@@ -284,15 +191,6 @@ export default function SelecionarHorario({ navigation, route }) {
               Data selecionada: {formatarData(dataSelecionada)}
             </Text>
             {mensagemErro ? <Text style={styles.avisoAgenda}>{mensagemErro}</Text> : null}
-            {dadosCarregados && agendaSuspensa ? (
-              <Text style={styles.avisoAgenda}>
-                Agenda suspensa nesta data. Não é possível realizar agendamentos.
-              </Text>
-            ) : null}
-            {!dadosCarregados ? (
-              <Text style={styles.text}>Verificando disponibilidade...</Text>
-            ) : null}
-
             <View style={styles.calendario}>
               <View style={styles.navegacaoCalendario}>
                 <TouchableOpacity
@@ -381,20 +279,13 @@ export default function SelecionarHorario({ navigation, route }) {
               </View>
             </View>
 
-            <Text style={styles.subtitulo}>HORÁRIOS DISPONÍVEIS</Text>
+            <Text style={styles.subtitulo}>ESCOLHA UM HORÁRIO</Text>
+            <Text style={styles.text}>
+              A disponibilidade será confirmada ao reservar.
+            </Text>
             <View style={styles.listaHorarios}>
               {horarios.map((horario) => {
                 const selecionado = horarioSelecionado === horario;
-                const ocupado = agendamentos.some((agendamento) => (
-                  agendamento.idBarbeiro === barbeiroId
-                  && agendamento.horario === horario
-                ));
-                const indisponivel = (
-                  !dadosCarregados
-                  || Boolean(mensagemErro)
-                  || agendaSuspensa
-                  || ocupado
-                );
 
                 return (
                   <TouchableOpacity
@@ -402,26 +293,25 @@ export default function SelecionarHorario({ navigation, route }) {
                     style={[
                       styles.botaoHorario,
                       selecionado && styles.horarioSelecionado,
-                      indisponivel && styles.botaoDesabilitado,
                     ]}
-                    onPress={() => setHorarioSelecionado(horario)}
-                    disabled={indisponivel}
+                    onPress={() => {
+                      setHorarioSelecionado(horario);
+                      setMensagemErro('');
+                    }}
+                    disabled={salvando}
                     accessibilityRole="button"
-                    accessibilityLabel={ocupado
-                      ? `Horário ${horario} ocupado`
-                      : `Selecionar horário ${horario}`}
+                    accessibilityLabel={`Selecionar horário ${horario}`}
                     accessibilityState={{
                       selected: selecionado,
-                      disabled: indisponivel,
+                      disabled: salvando,
                     }}
                   >
                     <Text style={[
                       styles.textoHorario,
                       selecionado && styles.textoHorarioSelecionado,
-                      ocupado && styles.textoDesabilitado,
                     ]}
                     >
-                      {ocupado ? `${horario} - OCUPADO` : horario}
+                      {horario}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -448,12 +338,7 @@ export default function SelecionarHorario({ navigation, route }) {
                 style={[
                   styles.botaoHorario,
                   styles.horarioSelecionado,
-                  (salvando
-                    || !dadosCarregados
-                    || Boolean(mensagemErro)
-                    || agendaSuspensa
-                    || horarioOcupado
-                    || (fluxoAdministrador && !nomeCliente.trim()))
+                  (salvando || (fluxoAdministrador && !nomeCliente.trim()))
                     && styles.botaoDesabilitado,
                   {
                     marginTop: 20,
@@ -461,23 +346,13 @@ export default function SelecionarHorario({ navigation, route }) {
                   },
                 ]}
                 disabled={
-                  salvando
-                  || !dadosCarregados
-                  || Boolean(mensagemErro)
-                  || agendaSuspensa
-                  || horarioOcupado
-                  || (fluxoAdministrador && !nomeCliente.trim())
+                  salvando || (fluxoAdministrador && !nomeCliente.trim())
                 }
                 onPress={confirmarAgendamento}
                 accessibilityRole="button"
                 accessibilityState={{
                   disabled: (
-                    salvando
-                    || !dadosCarregados
-                    || Boolean(mensagemErro)
-                    || agendaSuspensa
-                    || horarioOcupado
-                    || (fluxoAdministrador && !nomeCliente.trim())
+                    salvando || (fluxoAdministrador && !nomeCliente.trim())
                   ),
                 }}
                 accessibilityLabel="Confirmar agendamento e voltar para a área inicial"

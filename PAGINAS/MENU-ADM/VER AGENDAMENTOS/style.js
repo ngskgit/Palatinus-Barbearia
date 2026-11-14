@@ -173,6 +173,24 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginTop: 2,
   },
+  botaoExcluirAgendamento: {
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    marginTop: 12,
+    borderRadius: 10,
+    backgroundColor: '#9B2C2C',
+  },
+  botaoExcluirAgendamentoDesabilitado: {
+    opacity: 0.6,
+  },
+  textoBotaoExcluirAgendamento: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
 });
 
 export default styles;
